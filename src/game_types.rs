@@ -45,7 +45,7 @@ pub struct Tile {
 	unlocked: bool,
 }
 
-//#[derive(Eq, Hash)]
+#[derive(Copy, Clone)]
 pub enum ResourceType {
 	Wood = 0,
 	Food = 1,
@@ -131,5 +131,12 @@ impl Resources {
 			i += 1;
 		}
 		return true;
+	}
+	pub fn new(in_res: Vec<(ResourceType, f64)>) -> Resources {
+		let mut res: [f64; Resources::NUM_RESOURCES] = [0.0; Resources::NUM_RESOURCES];
+		for (r, ammount) in in_res.iter() {
+			res[(*r) as usize] = *ammount;
+		}
+		return Resources {_res: res};
 	}
 }
