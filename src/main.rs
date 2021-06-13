@@ -1,3 +1,5 @@
+mod production;
+
 use std::ops;
 //use std::string;
 
@@ -32,7 +34,7 @@ struct Tech {
 	tier: usize,
 	desc: String,
 	unlocked: bool,
-	unlock: Box<Fn(Resources) -> bool>,
+	unlock: Box<Fn(Game) -> bool>,
 }
 
 impl Tech {
@@ -149,4 +151,5 @@ fn main() {
 	println!("{}", Resources::NUM_RESOURCES);
 //	let myTile = TileType::Farm;
 //	println!("{}", get_hover_str(myTile));
+	println!("{}", production::test());
 }
