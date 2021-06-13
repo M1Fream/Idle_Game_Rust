@@ -4,6 +4,10 @@ mod world;
 use game_types::Resources;
 use game_types::ResourceType;
 
+extern crate num;
+#[macro_use]
+extern crate num_derive;
+
 fn main() {
     println!("Hello, world!");
 	/*let res1 = Resources {wood: 2.0, food: 4.0};
