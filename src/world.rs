@@ -28,7 +28,8 @@ impl TerrainType{
 	pub const NUM_TERRAINS : usize = 3; //This must be the nunmber of enum variants of TerrainType. Otherwise, it will create errors.
 
 	pub fn rand() -> TerrainType {
-		return num::FromPrimitive::from_usize(rand::thread_rng().gen_range(0..TerrainType::NUM_TERRAINS));
+		let rand_terrain = num::FromPrimitive::from_usize(rand::thread_rng().gen_range(0..TerrainType::NUM_TERRAINS));
+		return rand_terrain.unwrap();
 	}
 }
 
