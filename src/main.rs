@@ -1,5 +1,6 @@
 mod production;
 mod game_types;
+mod world;
 use game_types::Resources;
 use game_types::ResourceType;
 

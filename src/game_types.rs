@@ -1,9 +1,9 @@
-mod world;
+use crate::world;
 use std::ops;
 
 pub struct Game {
 	paused: bool,
-	world_map: WorldMap,
+	world_map: world::WorldMap,
 	resources: Resources,
 	production: Resources,
 	techs: [Tech; Tech::NUM_TECHS],
