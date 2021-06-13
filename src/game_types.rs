@@ -1,16 +1,13 @@
+mod world;
 use std::ops;
 
 pub struct Game {
 	paused: bool,
-	tiles: [[Tile; Game::MAP_SIZE]; Game::MAP_SIZE],
+	world_map: WorldMap,
 	resources: Resources,
 	production: Resources,
 	techs: [Tech; Tech::NUM_TECHS],
 //	upgrades: [Upgrade: Upgrade::NUM_UPGRADES],
-}
-
-impl Game {
-	pub const MAP_SIZE : usize = 255;
 }
 
 #[derive(Copy, Clone)]
