@@ -1,22 +1,24 @@
 use rand::Rng;
 use crate::game_types;
 
+#[derive(Copy, Clone)]
 pub struct Tile {
-	my_type: TileType,
+	pub my_type: TileType,
 	unlocked: bool,
 }
 
 pub struct WorldMap {
-	tiles : [[Tile; WorldMap::MAP_SIZE]; WorldMap::MAP_SIZE]
+	pub tiles : [[Tile; WorldMap::MAP_SIZE]; WorldMap::MAP_SIZE]
 }
 
+#[derive(Copy, Clone)]
 pub enum TileType {
 	Empty,
 	Terrain(TerrainType),
 	Building(game_types::Building),
 }
 
-#[derive(FromPrimitive)]
+#[derive(FromPrimitive, Copy, Clone)]
 pub enum TerrainType {
 	Forest = 0,
 	Lake = 1,

@@ -2,17 +2,17 @@ use crate::world;
 use std::ops;
 
 pub struct Game {
-	paused: bool,
-	world_map: world::WorldMap,
-	resources: Resources,
-	production: Resources,
-	techs: [Tech; Tech::NUM_TECHS],
+	pub paused: bool,
+	pub world_map: world::WorldMap,
+	pub resources: Resources,
+	pub production: Resources,
+	pub techs: [Tech; Tech::NUM_TECHS],
 //	upgrades: [Upgrade: Upgrade::NUM_UPGRADES],
 }
 
 #[derive(Copy, Clone)]
 pub struct Resources {
-	_res: [f64; Resources::NUM_RESOURCES],
+	pub _res: [f64; Resources::NUM_RESOURCES],
 }
 
 impl ops::Index<ResourceType> for Resources {
@@ -20,6 +20,12 @@ impl ops::Index<ResourceType> for Resources {
 	
 	fn index(self: &Resources, idx: ResourceType) -> &f64 {
 		return &self._res[idx as usize];
+	}
+}
+
+impl ops::IndexMut<ResourceType> for Resources {
+	fn index_mut(self: &mut Resources, idx: ResourceType) -> &mut f64 {
+		return &mut self._res[idx as usize];
 	}
 }
 
@@ -37,36 +43,36 @@ impl Tech {
 	const NUM_TECHS : usize = 2;
 }
 
-pub struct Tile {
-	my_type: TileType,
-	unlocked: bool,
-}
-
 #[derive(Copy, Clone)]
 pub enum ResourceType {
 	Wood = 0,
 	Food = 1,
 }
 
-pub enum TileType {
-	Empty,
-	Terrain(TerrainType),
-	Building(Building),
-}
-
-pub enum TerrainType {
-	Forest,
-	Lake,
-	Rock,
-}
-
+#[derive(Copy, Clone)]
 pub struct Building {
-	my_type: BuildingType,
+	pub my_type: BuildingType,
 	level: u8,
 }
 
-enum BuildingType {
-	Farm
+impl Building {
+	pub const NUM_BUILDINGS : usize = 12;
+}
+
+#[derive(Copy, Clone)]
+pub enum BuildingType {
+	Farm = 0,
+	Stable = 1,
+	Water_well = 2,
+	Furnace_simple = 3,
+	Steam_engine = 4,
+	Electric_motor = 5,
+	Altar = 6,
+	Shrine = 7,
+	Temple = 8,
+	Library = 9,
+	Mana_well = 10,
+	Occult_library = 11,
 }
 /*
 fn get_hover_str(x: TileType) -> String {
