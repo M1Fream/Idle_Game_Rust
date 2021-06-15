@@ -16,23 +16,57 @@ fn prod_nothing(g: game_types::Game, i: usize, j: usize) -> game_types::Resource
 }
 
 #[derive(Copy, Clone)]
+struct Bonus {
+	pub ratio: f64,
+	pub tile: world::TileType,
+}
+
 struct basic_production {
 	base: game_types::Resources,
+	edge_bonuses: Vec<Bonus>,
+	corner_bonuses: Vec<Bonus>,
 	tier: usize,
 }
 
 impl basic_production {
-	pub fn new(res: game_types::Resources, tier : usize) -> basic_production {
-		return basic_production {base: res, tier: tier};
+	pub fn new(res: game_types::Resources, edge: Vec<Bonus>, corner: Vec<Bonus>, tier : usize) -> basic_production {
+		return basic_production {base: res, edge_bonuses: edge, corner_bonuses: corner, tier: tier};
 	}
 }
 
 impl production_obj for basic_production {
 	fn calc_prod(&self, g: &game_types::Game, i: usize, j:usize) -> game_types::Resources {
-		return self.base;
+		let mut ret = self.base;
+		let mut mult : f64 = 1.0;
+		for b in &self.edge_bonuses {
+			let cnt = count_edge(g, i, j, b.tile);
+			mult *= 1.0 + b.ratio * (cnt as f64);
+		}
+		for b in &self.corner_bonuses {
+			let cnt = count_corner(g, i, j, b.tile);
+			mult *= 1.0 + b.ratio * (cnt as f64);
+		}
+		return self.base * mult;
 	}
 }
 
+fn count_edge(g: &game_types::Game, i: usize, j:usize, t: world::TileType) -> usize {
+	let mut ret = 0;
+	if i!=0 && matches!(g.world_map.tiles[i-1][j].my_type, t) { ret += 1; }
+	if j!=0 && matches!(g.world_map.tiles[i][j-1].my_type, t) { ret += 1; }
+	if i!=world::WorldMap::MAP_SIZE && matches!(g.world_map.tiles[i+1][j].my_type, t) { ret += 1; }
+	if j!=world::WorldMap::MAP_SIZE && matches!(g.world_map.tiles[i][j+1].my_type, t) { ret += 1; }
+	return ret;
+}
+
+fn count_corner(g: &game_types::Game, i: usize, j:usize, t: world::TileType) -> usize {
+	let mut ret = 0;
+	if i!=0 && j!=0 && matches!(g.world_map.tiles[i-1][j-1].my_type, t) { ret += 1; }
+	if i!=0 && j!=world::WorldMap::MAP_SIZE && matches!(g.world_map.tiles[i-1][j+1].my_type, t) { ret += 1; }
+	if i!=world::WorldMap::MAP_SIZE && j != 0 && matches!(g.world_map.tiles[i+1][j-1].my_type, t) { ret += 1; }
+	if i!=world::WorldMap::MAP_SIZE && j!=world::WorldMap::MAP_SIZE && matches!(g.world_map.tiles[i+1][j+1].my_type, t) { ret += 1; }
+	return ret;
+}
 
 impl ops::Index<game_types::BuildingType> for [Box<dyn production_obj>] {
 	type Output = Box<dyn production_obj>;
@@ -54,9 +88,9 @@ fn init_prod_objs() ->  ArrayVec<Box<dyn production_obj>, { game_types::Building
 //	let mut ret_vec : ArrayVec<Box<dyn production_obj>> = ArrayVec::with_capacity(game_types::Resources::NUM_RESOURCES);
 	let mut ret_vec : ArrayVec<Box<dyn production_obj>, { game_types::Building::NUM_BUILDINGS }> = ArrayVec::<_, {game_types::Building::NUM_BUILDINGS}>::new();
 	for _ in 0..game_types::Building::NUM_BUILDINGS {
-		ret_vec.push(Box::new(basic_production::new(game_types::Resources::new(Vec::new()), 1)));
+		ret_vec.push(Box::new(basic_production::new(game_types::Resources::new(Vec::new()), Vec::new(), Vec::new(), 1)));
 	} //we initialize everything
-	ret_vec[game_types::BuildingType::Farm] = Box::new(basic_production::new(game_types::Resources::new(vec![(game_types::ResourceType::Food, 5.0)]), 1));
+	ret_vec[game_types::BuildingType::Farm] = Box::new(basic_production::new(game_types::Resources::new(vec![(game_types::ResourceType::Food, 5.0)]), Vec::new(), Vec::new(), 1));
 	return ret_vec;
 }
 
