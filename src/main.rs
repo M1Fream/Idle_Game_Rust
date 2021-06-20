@@ -4,6 +4,9 @@ mod world;
 use game_types::Resources;
 use game_types::ResourceType;
 
+use eframe;
+mod gui;
+
 extern crate num;
 #[macro_use]
 extern crate num_derive;
@@ -23,4 +26,7 @@ fn main() {
 //	let myTile = TileType::Farm;
 //	println!("{}", get_hover_str(myTile));
 //	println!("{}", production::test());
+	let app = gui::TemplateApp::default();
+    let native_options = eframe::NativeOptions::default();
+    eframe::run_native(Box::new(app), native_options);
 }
