@@ -51,7 +51,11 @@ impl epi::App for TemplateApp {
                 ui.label("Write something: ");
                 ui.text_edit_singleline(label);
             });
-
+			
+			for i in 0..game_types::Resources::NUM_RESOURCES {
+				ui.label(format!("{}: {}", i, game.resources._res[i]));
+			}
+			
 /*            ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
             if ui.button("Increment").clicked() {
                 *value += 1.0;
