@@ -5,38 +5,28 @@ pub struct TemplateApp {
     // Example stuff:
     label: String,
 
-//	g: &game_types::Game,
-	
-    value: f32,
+	game: Box<game_types::Game>,
 }
 
-impl Default for TemplateApp {
-    fn default() -> Self {
+impl<'a> TemplateApp{
+    pub fn new(g: Box<game_types::Game>) -> Self {
         Self {
             // Example stuff:
             label: "Hello World!".to_owned(),
-            value: 2.7,
+            game: g,
         }
     }
 }
 
 impl epi::App for TemplateApp {
     fn name(&self) -> &str {
-        "egui template"
-    }
-/*
-    fn load(&mut self, storage: &dyn epi::Storage) {
-        *self = epi::get_value(storage, epi::APP_KEY).unwrap_or_default()
+        "Idle Game Rust"
     }
 
-    fn save(&mut self, storage: &mut dyn epi::Storage) {
-        epi::set_value(storage, epi::APP_KEY, self);
-    }
-*/
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
-        let Self { label, value } = self;
+        let Self { label, game } = self;
 
         // Examples of how to create different panels and windows.
         // Pick whichever suits you.
@@ -62,10 +52,10 @@ impl epi::App for TemplateApp {
                 ui.text_edit_singleline(label);
             });
 
-            ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
+/*            ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
             if ui.button("Increment").clicked() {
                 *value += 1.0;
-            }
+            }*/
 
         });
 

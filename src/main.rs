@@ -26,7 +26,8 @@ fn main() {
 //	let myTile = TileType::Farm;
 //	println!("{}", get_hover_str(myTile));
 //	println!("{}", production::test());
-	let app = gui::TemplateApp::default();
+	let g = Box::new(game_types::Game::default());
+	let app = gui::TemplateApp::new(g);
     let native_options = eframe::NativeOptions::default();
     eframe::run_native(Box::new(app), native_options);
 }

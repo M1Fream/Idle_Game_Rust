@@ -6,7 +6,7 @@ pub struct Game {
 	pub world_map: world::WorldMap,
 	pub resources: Resources,
 	pub production: Resources,
-	pub techs: [Tech; Tech::NUM_TECHS],
+//	pub techs: [Tech; Tech::NUM_TECHS],
 //	upgrades: [Upgrade: Upgrade::NUM_UPGRADES],
 }
 
@@ -141,5 +141,22 @@ impl Resources {
 			res[(*r) as usize] = *ammount;
 		}
 		return Resources {_res: res};
+	}
+}
+
+impl Default for Resources {
+	fn default() -> Self {
+		Self {_res: [0.0; Resources::NUM_RESOURCES]}
+	}
+}
+
+impl Default for Game {
+	fn default() -> Self {
+		Self {
+			paused: false,
+			world_map: world::WorldMap::default(),
+			resources: Resources::default(),
+			production: Resources::default(),
+		}
 	}
 }

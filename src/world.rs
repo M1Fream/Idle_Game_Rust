@@ -43,3 +43,24 @@ impl WorldMap {
 		return 
 	}*/
 }
+
+impl Default for TileType {
+	fn default() -> Self {
+		return TileType::Empty;
+	}
+}
+
+impl Default for Tile {
+	fn default() -> Self {
+		Self {
+			my_type: TileType::default(),
+			unlocked: false,
+		}
+	}
+}
+
+impl Default for WorldMap {
+	fn default() -> Self {
+		Self {tiles: [[Tile::default(); WorldMap::MAP_SIZE]; WorldMap::MAP_SIZE]}
+	}
+}
