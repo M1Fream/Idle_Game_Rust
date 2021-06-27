@@ -10,6 +10,22 @@ pub struct Game {
 //	upgrades: [Upgrade: Upgrade::NUM_UPGRADES],
 }
 
+impl Game {
+	pub fn buy(&mut self, b: &buyable) -> bool {
+		let c = b.get_cost();
+		if self.resources.can_buy(c) {
+			self.resources = self.resources - c;
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
+trait buyable {
+	fn get_cost(&self) -> Resources;
+}
+
 #[derive(Copy, Clone)]
 pub struct Resources {
 	pub _res: [f64; Resources::NUM_RESOURCES],
