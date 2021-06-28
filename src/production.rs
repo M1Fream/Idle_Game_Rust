@@ -50,39 +50,39 @@ trait HasBonus<'a> {
 		return ret;
 	}
 }
-/*
-struct SimpleTileBonus {
-	pub ratio: f64,
-	pub tile: world::TileType,
-}*/
 
-struct TileBonus<'a> {
+struct ResetBonus {
+	pub tier: usize,
+}
+
+impl Bonus for ResetBonus {
+	fn calc_ratio(&self, g: &game_types::Game, tile: world::Tile) -> f64 {
+		return 1.0; //TODO: Figure out reset currency and math
+	}
+}
+
+struct UpgradeBonus {
 	pub ratio: f64,
-	pub tile: world::TileType,
-//	edge_bonuses: Vec<&'a Bonus>,
-//	corner_bonuses: Vec<&'a Bonus>,
-//	upgrade_bonuses: Vec<&'a Bonus>,
-	bonuses: Vec<&'a Bonus>,
-	get_tiles: Fn(world::WorldMap, world::Tile) -> Vec<world::Tile>,
+	pub upgrade: String,
 }
-/*
-impl<'a> StandardBonuses<'a> for TileBonus<'a> {
-	fn get_edge_bonuses(&self) -> &Vec<&'a Bonus> {return &self.edge_bonuses}
-	fn get_corner_bonuses(&self) -> &Vec<&'a Bonus> {return &self.corner_bonuses}
-	fn get_upgrade_bonuses(&self) -> &Vec<&'a Bonus> {return &self.upgrade_bonuses}
-}
-*/
-/*
-impl Bonus for SimpleTileBonus {
-	fn calc_ratio(&self, g: &game_types::Game, i: usize, j: usize) -> f64 {
-		let t = self.tile;
-		if matches!(g.world_map.tiles[i][j].my_type, t) {
+
+impl Bonus for UpgradeBonus {
+	fn calc_ratio(&self, g: &game_types::Game, tile: world::Tile) -> f64 {
+		if g.upgrades[&self.upgrade].unlocked {
 			return self.ratio;
 		} else {
 			return 1.0;
 		}
 	}
-}*/
+}
+
+struct TileBonus<'a> {
+	pub ratio: f64,
+	pub tile: world::TileType,
+	bonuses: Vec<&'a Bonus>,
+	get_tiles: Fn(world::WorldMap, world::Tile) -> Vec<world::Tile>,
+}
+
 
 impl<'a> Bonus for TileBonus<'a> {
 	fn calc_ratio(&self, g: &game_types::Game, tile: world::Tile) -> f64 {

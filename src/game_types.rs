@@ -1,5 +1,6 @@
 use crate::world;
 use std::ops;
+use std::collections::HashMap;
 
 pub struct Game {
 	pub paused: bool,
@@ -8,6 +9,8 @@ pub struct Game {
 	pub production: Resources,
 //	pub techs: [Tech; Tech::NUM_TECHS],
 //	upgrades: [Upgrade: Upgrade::NUM_UPGRADES],
+	pub techs : HashMap<String, Tech>,
+	pub upgrades: HashMap<String, Upgrade>,
 }
 
 impl Game {
@@ -18,6 +21,26 @@ impl Game {
 			return true;
 		} else {
 			return false;
+		}
+	}
+	pub fn check_unlocks(&mut self) {
+		let mut to_unlock: Vec<String> = Vec::new();
+		for (name, upgrade) in &self.upgrades {
+			if (upgrade.unlock)(&self) { //you have to really think about this one to understand why it can't be done in one loop
+				to_unlock.push(name.to_string()); //TL;DR you can't change upgrades while iterating over it because that could break the iter code of the hashmap
+			}
+		}
+		for name in to_unlock {
+			self.upgrades.get_mut(&name).unwrap().unlocked = true;
+		}
+		let mut to_unlock: Vec<String> = Vec::new();
+		for (name, tech) in &self.techs {
+			if (tech.unlock)(&self) {
+				to_unlock.push(name.to_string());
+			}
+		}
+		for name in to_unlock {
+			self.techs.get_mut(&name).unwrap().unlocked = true;
 		}
 	}
 }
@@ -51,8 +74,30 @@ pub struct Tech {
 	cost: Resources,
 	tier: usize,
 	desc: String,
-	unlocked: bool,
-	unlock: Box<Fn(Game) -> bool>,
+	pub unlocked: bool,
+	unlock: Box<Fn(&Game) -> bool>,
+}
+
+impl trait buyable for Tech {
+	fn get_cost(&self) -> Resources {
+		return self.cost;
+	}
+}
+
+pub struct Upgrade {
+	name: String,
+	num: usize,
+	cost: Resources,
+	tier: usize,
+	desc: String,
+	pub unlocked: bool,
+	unlock: Box<Fn(&Game) -> bool>, //Maybe there shoudn't be a difference between techs and upgrades in the code or maybe it should just be a bool flag
+}
+	
+impl trait buyable for Upgrade {
+	fn get_cost(&self) -> Resources {
+		return self.cost;
+	}
 }
 
 impl Tech {
@@ -173,6 +218,8 @@ impl Default for Game {
 			world_map: world::WorldMap::default(),
 			resources: Resources::default(),
 			production: Resources::default(),
+			upgrades: HashMap::new(),
+			techs: HashMap::new(),
 		}
 	}
 }
