@@ -7,7 +7,7 @@ pub fn test() -> usize {
 	return 2;
 }
 
-trait production_obj {
+pub trait production_obj {
 	fn calc_prod(&self, g: &game_types::Game, i: usize, j: usize) -> game_types::Resources;
 }
 
@@ -68,7 +68,7 @@ struct UpgradeBonus {
 
 impl Bonus for UpgradeBonus {
 	fn calc_ratio(&self, g: &game_types::Game, tile: world::Tile) -> f64 {
-		if g.upgrades[&self.upgrade].unlocked {
+		if g.upgrades[&self.upgrade].num > 0 {
 			return self.ratio;
 		} else {
 			return 1.0;
@@ -162,7 +162,7 @@ fn init_prod_objs() ->  ArrayVec<Box<dyn production_obj>, { game_types::Building
 	return ret_vec;
 }
 
-pub fn calc_production(g: game_types::Game, prod_objs: ArrayVec<Box<dyn production_obj>, { game_types::Building::NUM_BUILDINGS }>) -> game_types::Resources {
+pub fn calc_production(g: &game_types::Game, prod_objs: &ArrayVec<Box<dyn production_obj>, { game_types::Building::NUM_BUILDINGS }>) -> game_types::Resources {
 	let mut ret = game_types::Resources {_res :[0.0; game_types::Resources::NUM_RESOURCES]};
 	for i in 0..world::WorldMap::MAP_SIZE {
 		for j in 0..world::WorldMap::MAP_SIZE {

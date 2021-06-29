@@ -1,6 +1,9 @@
 use crate::world;
 use std::ops;
 use std::collections::HashMap;
+use arrayvec::ArrayVec;
+use crate::production;
+use crate::production::production_obj;
 
 pub struct Game {
 	pub paused: bool,
@@ -11,6 +14,7 @@ pub struct Game {
 //	upgrades: [Upgrade: Upgrade::NUM_UPGRADES],
 	pub techs : HashMap<String, Tech>,
 	pub upgrades: HashMap<String, Upgrade>,
+	pub prod_objs: ArrayVec<Box<dyn production_obj>, { Building::NUM_BUILDINGS }>,
 }
 
 impl Game {
@@ -23,6 +27,19 @@ impl Game {
 			return false;
 		}
 	}
+	
+	pub fn buy_building(&mut self, bt: BuildingType, t: &mut world::Tile) -> bool {
+		let building = Building::new(bt);
+		if self.buy(&building) {
+			t.my_type = world::TileType::Building(building);
+			self.production = production::calc_production(self, &self.prod_objs);
+			self.check_unlocks();
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	pub fn check_unlocks(&mut self) {
 		let mut to_unlock: Vec<String> = Vec::new();
 		for (name, upgrade) in &self.upgrades {
@@ -78,7 +95,7 @@ pub struct Tech {
 	unlock: Box<Fn(&Game) -> bool>,
 }
 
-impl trait buyable for Tech {
+impl buyable for Tech {
 	fn get_cost(&self) -> Resources {
 		return self.cost;
 	}
@@ -86,7 +103,7 @@ impl trait buyable for Tech {
 
 pub struct Upgrade {
 	name: String,
-	num: usize,
+	pub num: usize,
 	cost: Resources,
 	tier: usize,
 	desc: String,
@@ -94,7 +111,7 @@ pub struct Upgrade {
 	unlock: Box<Fn(&Game) -> bool>, //Maybe there shoudn't be a difference between techs and upgrades in the code or maybe it should just be a bool flag
 }
 	
-impl trait buyable for Upgrade {
+impl buyable for Upgrade {
 	fn get_cost(&self) -> Resources {
 		return self.cost;
 	}
@@ -116,8 +133,17 @@ pub struct Building {
 	level: u8,
 }
 
+impl buyable for Building {
+	fn get_cost(&self) -> Resources {
+		get_build_cost(self.my_type)
+	}
+}
+
 impl Building {
 	pub const NUM_BUILDINGS : usize = 12;
+	pub fn new(t: BuildingType) -> Building {
+		Building {my_type: t, level: 1}
+	}
 }
 
 #[derive(Copy, Clone)]
@@ -220,6 +246,16 @@ impl Default for Game {
 			production: Resources::default(),
 			upgrades: HashMap::new(),
 			techs: HashMap::new(),
+			prod_objs: ArrayVec::new(),
 		}
+	}
+}
+
+pub fn get_build_cost(b: BuildingType) -> Resources {
+	match b {
+		BuildingType::Farm => Resources::new(vec![(ResourceType::Wood, 5.0)]),
+		BuildingType::Stable => Resources::new(vec![(ResourceType::Wood, 25.0)]),
+		BuildingType::Water_well => Resources::new(vec![(ResourceType::Wood, 125.0)]),
+		_ => Resources::new(vec![]),
 	}
 }
