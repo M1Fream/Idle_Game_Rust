@@ -43,7 +43,7 @@ impl Game {
 	pub fn check_unlocks(&mut self) {
 		let mut to_unlock: Vec<String> = Vec::new();
 		for (name, upgrade) in &self.upgrades {
-			if (upgrade.unlock)(&self) { //you have to really think about this one to understand why it can't be done in one loop
+			if upgrade.unlock.should_unlock(&self) { //you have to really think about this one to understand why it can't be done in one loop
 				to_unlock.push(name.to_string()); //TL;DR you can't change upgrades while iterating over it because that could break the iter code of the hashmap
 			}
 		}
@@ -52,7 +52,7 @@ impl Game {
 		}
 		let mut to_unlock: Vec<String> = Vec::new();
 		for (name, tech) in &self.techs {
-			if (tech.unlock)(&self) {
+			if tech.unlock.should_unlock(&self) {
 				to_unlock.push(name.to_string());
 			}
 		}
@@ -92,7 +92,7 @@ pub struct Tech {
 	tier: usize,
 	desc: String,
 	pub unlocked: bool,
-	unlock: Box<Fn(&Game) -> bool>,
+	unlock: Box<UnlockFn>,
 }
 
 impl buyable for Tech {
@@ -108,7 +108,7 @@ pub struct Upgrade {
 	tier: usize,
 	desc: String,
 	pub unlocked: bool,
-	unlock: Box<Fn(&Game) -> bool>, //Maybe there shoudn't be a difference between techs and upgrades in the code or maybe it should just be a bool flag
+	unlock: Box<UnlockFn>, //Maybe there shoudn't be a difference between techs and upgrades in the code or maybe it should just be a bool flag
 }
 	
 impl buyable for Upgrade {
@@ -257,5 +257,78 @@ pub fn get_build_cost(b: BuildingType) -> Resources {
 		BuildingType::Stable => Resources::new(vec![(ResourceType::Wood, 25.0)]),
 		BuildingType::Water_well => Resources::new(vec![(ResourceType::Wood, 125.0)]),
 		_ => Resources::new(vec![]),
+	}
+}
+
+trait UnlockFn {
+	fn should_unlock(&self, g: &Game) -> bool;
+}
+
+struct always_unlocked {
+}
+
+impl UnlockFn for always_unlocked {
+	fn should_unlock(&self, g: &Game) -> bool {
+		return true;
+	}
+}
+
+struct and_unlock {
+	pub args: Vec<Box<UnlockFn>>,
+}
+
+impl UnlockFn for and_unlock {
+	fn should_unlock(&self, g: &Game) -> bool {
+		for u in &self.args {
+			if !u.should_unlock(g) {
+				return false;
+			}
+		}
+		return true;
+	}
+}
+
+struct upgrade_unlock {
+	pub args: Vec<String>,
+}
+
+impl UnlockFn for upgrade_unlock {
+	fn should_unlock(&self, g: &Game) -> bool {
+		for u in &self.args {
+			if g.upgrades[u].num == 0 {
+				return false;
+			}
+		}
+		return true;
+	}
+}
+
+struct tech_unlock {
+	pub args: Vec<String>,
+}
+
+impl UnlockFn for tech_unlock {
+	fn should_unlock(&self, g: &Game) -> bool {
+		for t in &self.args {
+			if g.techs[t].num == 0 {
+				return false;
+			}
+		}
+		return true;
+	}
+}
+
+struct resource_unlock {
+	pub args: Vec<(ResourceType, f64)>,
+}
+
+impl UnlockFn for resource_unlock {
+	fn should_unlock(&self, g: &Game) -> bool {
+		for (r, ammount) in &self.args {
+			if g.resources[*r] < *ammount {
+				return false;
+			}
+		}
+		return true;
 	}
 }
